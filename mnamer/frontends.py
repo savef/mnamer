@@ -123,7 +123,8 @@ class Cli(Frontend):
             target.metadata.update(match)
 
             if (
-                is_subtitle(target.metadata.container)
+                not self.settings.no_rename
+                and is_subtitle(target.metadata.container)
                 and not target.metadata.language_sub
             ):
                 if self.settings.batch:

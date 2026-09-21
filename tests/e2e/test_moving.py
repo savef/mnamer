@@ -74,6 +74,16 @@ def test_no_overwrite(e2e_run, setup_test_files):
 
 
 @pytest.mark.usefixtures("setup_test_dir")
+def test_no_rename(e2e_run, setup_test_files):
+    setup_test_files("aladdin.1992.avi", "saw.2004.srt")
+    result = e2e_run("--batch", "--no-rename", "--movie-directory={name} ({year})", ".")
+    assert result.code == 0
+    assert str(Path("/Aladdin (1992)/aladdin.1992.avi")) in result.out
+    assert str(Path("/Saw (2004)/saw.2004.srt")) in result.out
+    assert "2 out of 2 files processed successfully" in result.out
+
+
+@pytest.mark.usefixtures("setup_test_dir")
 def test_ignore(e2e_run, setup_test_files):
     setup_test_files(
         "Downloads/the.goonies.1985.mkv",

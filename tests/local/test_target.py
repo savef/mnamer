@@ -246,6 +246,23 @@ def test_destination__same_directory_matches_source(tmp_path, monkeypatch):
     assert target.destination == target.source
 
 
+def test_destination__no_rename_preserves_source_filename():
+    """--no-rename keeps the source filename verbatim but still builds directories."""
+    settings = SettingStore(
+        batch=True,
+        media=MediaType.MOVIE,
+        lower=True,
+        no_rename=True,
+        scene=True,
+        movie_directory=Path("Movie Library/{name}"),
+    )
+    target = Target(Path("The.Film.2009.1080p-GROUP.mkv"), settings)
+    assert (
+        target.destination
+        == Path("movie.library/the.film/The.Film.2009.1080p-GROUP.mkv").resolve()
+    )
+
+
 def test_query():
     pass  # TODO
 

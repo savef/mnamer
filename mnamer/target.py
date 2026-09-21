@@ -100,7 +100,10 @@ class Target:
         file_path = format(self.metadata, self._settings.formatting_for(self.metadata))
         dir_tail, filename = self._split_formatted_path(file_path)
         directory = Path(dir_head, self._process_directory(dir_tail))
-        filename = self._process_filename(filename)
+        if self._settings.no_rename:
+            filename = self.source.name
+        else:
+            filename = self._process_filename(filename)
         return Path(directory, filename).resolve()
 
     def _format_directory(self, directory: Path) -> Path:

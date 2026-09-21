@@ -63,6 +63,7 @@ PARAMETERS:
   --mask=<EXTENSION,...>: only process given file types
   --no-guess: disable best guess; e.g. when no matches or network down
   --no-overwrite: prevent relocation if it would overwrite a file
+  --no-rename: relocate files without renaming them
   --no-style: print to stdout without using colour or unicode chars
   --movie-api={*tmdb,omdb}: set movie api provider
   --movie-directory: set movie relocation directory

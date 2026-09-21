@@ -146,6 +146,16 @@ class SettingStore:
             help="--no-overwrite: prevent relocation if it would overwrite a file",
         ).as_dict(),
     )
+    no_rename: bool = dataclasses.field(
+        default=False,
+        metadata=SettingSpec(
+            action="store_true",
+            dest="no_rename",
+            flags=["--no_rename", "--no-rename", "--norename"],
+            group=SettingType.PARAMETER,
+            help="--no-rename: relocate files without renaming them",
+        ).as_dict(),
+    )
     no_style: bool = dataclasses.field(
         default=False,
         metadata=SettingSpec(

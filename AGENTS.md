@@ -89,7 +89,7 @@ uv run mypy mnamer tests
 
 - **Template Formatting**: `MetadataMovie.__format__()` and `MetadataEpisode.__format__()` use `_MetaFormatter` to substitute template variables like `{name}`, `{season:02}`, and `{extension}`. Templates are configured per media type via settings.
 
-- **File Relocation**: `Target.destination` combines the optional `movie_directory` or `episode_directory` setting with the matching format template, then applies replacement, scene/lowercase settings, and filename sanitization. `Target.relocate()` creates destination directories and moves the file.
+- **File Relocation**: `Target.destination` combines the optional `movie_directory` or `episode_directory` setting with the matching format template, then applies replacement, scene/lowercase settings, and filename sanitization. `Target.relocate()` creates destination directories and moves the file. With `--no-rename` the source filename is used verbatim and skips post-processing; directories are still derived from metadata, so files can be foldered without being renamed.
 
 ### Important Implementation Details
 
