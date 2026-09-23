@@ -347,6 +347,23 @@ def str_scenify(filename: str) -> str:
     return filename.lower().strip(".")
 
 
+_CLAUSE_BREAK_CHARS = ":;-"
+
+
+def _follows_clause_break(s: str, pos: int) -> bool:
+    """
+    Returns True if the word at pos begins a new clause, e.g. the "A" in
+    "Zathura: A Space Adventure". Such words keep their capital rather than
+    being lowercased as articles or prepositions.
+    """
+    index = pos - 1
+    if index < 0 or s[index] != " ":
+        return False  # e.g. the hyphenated "the" in "winnie-the-pooh"
+    while index >= 0 and s[index] == " ":
+        index -= 1
+    return index >= 0 and s[index] in _CLAUSE_BREAK_CHARS
+
+
 def str_title_case(s: str) -> str:
     """Attempts to intelligently apply title case transformations to strings."""
 
@@ -474,7 +491,11 @@ def str_title_case(s: str) -> str:
             ends = pos + word_length == string_length
             next_char = "" if ends else string_lower[pos + word_length]
             is_right_partitioned = not ends and next_char in padding_chars
-            if is_left_partitioned and is_right_partitioned:
+            if (
+                is_left_partitioned
+                and is_right_partitioned
+                and not _follows_clause_break(string_lower, pos)
+            ):
                 s = s[:pos] + exception.lower() + s[pos + word_length :]
 
     # process uppercase transformations

@@ -713,6 +713,22 @@ def test_str_title_case__lower__repeated_after_start(s: str, expected: str):
     assert actual == expected
 
 
+@pytest.mark.parametrize(
+    ("s", "expected"),
+    (
+        ("zathura: a space adventure", "Zathura: A Space Adventure"),
+        ("star trek ii - the wrath of khan", "Star Trek II - The Wrath of Khan"),
+        ("winnie-the-pooh", "Winnie-the-Pooh"),
+        ("mr. and mrs. smith", "Mr. and Mrs. Smith"),
+    ),
+)
+def test_str_title_case__lower__clause_break(s: str, expected: str):
+    # A small word opening a new clause keeps its capital; a hyphen without
+    # spaces and a sentence period do not open one.
+    actual = str_title_case(s)
+    assert actual == expected
+
+
 @pytest.mark.parametrize("s", ("at the theatre", "AT THE THEATRE"))
 def test_str_title_case__lower__only_whole_words(s: str):
     expected = "At the Theatre"  # theatre prefixed with 'the'
