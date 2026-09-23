@@ -103,6 +103,30 @@ def test_clean_empty_dirs(e2e_run, setup_test_files):
 
 
 @pytest.mark.usefixtures("setup_test_dir")
+def test_move_companions(e2e_run, setup_test_files):
+    setup_test_files(
+        "Saw.2004/saw.2004.avi",
+        "Saw.2004/saw.2004.srt",
+        "Saw.2004/saw.2004.nfo",
+        "Saw.2004/unrelated.txt",
+    )
+    result = e2e_run(
+        "--batch",
+        "--recurse",
+        "--move-companions",
+        "--movie-directory={name} ({year})",
+        ".",
+    )
+    assert result.code == 0
+    # the subtitle rides along instead of being prompted for separately
+    assert "1 out of 1 files processed successfully" in result.out
+    assert Path("Saw (2004)/Saw (2004).avi").exists()
+    assert Path("Saw (2004)/Saw (2004).srt").exists()
+    assert Path("Saw (2004)/Saw (2004).nfo").exists()  # bypasses --mask
+    assert Path("Saw.2004/unrelated.txt").exists()  # no stem match, left behind
+
+
+@pytest.mark.usefixtures("setup_test_dir")
 def test_ignore(e2e_run, setup_test_files):
     setup_test_files(
         "Downloads/the.goonies.1985.mkv",

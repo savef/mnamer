@@ -136,6 +136,16 @@ class SettingStore:
             nargs="+",
         ).as_dict(),
     )
+    move_companions: bool = dataclasses.field(
+        default=False,
+        metadata=SettingSpec(
+            action="store_true",
+            dest="move_companions",
+            flags=["--move_companions", "--move-companions", "--movecompanions"],
+            group=SettingType.PARAMETER,
+            help="--move-companions: move sibling files sharing a media file's name",
+        ).as_dict(),
+    )
     no_guess: bool = dataclasses.field(
         default=False,
         metadata=SettingSpec(

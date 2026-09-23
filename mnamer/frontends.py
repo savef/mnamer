@@ -185,6 +185,8 @@ class Cli(Frontend):
             f"moving to {target.destination.absolute()}",
             MessageType.SUCCESS,
         )
+        for companion in target.companions():
+            tty.msg(f"including {companion.name}", MessageType.ALERT)
         if self.settings.test:
             self.success_count += 1
             return

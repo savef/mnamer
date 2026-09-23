@@ -61,7 +61,24 @@ class Target:
         targets = [cls(file_path, settings) for file_path in file_paths]
         targets = list(dict.fromkeys(targets))  # unique values
         targets = list(filter(cls._matches_media, targets))
+        if settings.move_companions:
+            targets = cls._drop_companions(targets)
         return targets
+
+    @classmethod
+    def _drop_companions(cls, targets: list[Self]) -> list[Self]:
+        """Drops targets which will ride along with a same-stem media file."""
+        primaries = {
+            (target.source.parent, target.source.stem)
+            for target in targets
+            if not is_subtitle(target.source)
+        }
+        return [
+            target
+            for target in targets
+            if not is_subtitle(target.source)
+            or (target.source.parent, target.source.stem) not in primaries
+        ]
 
     @classmethod
     def reset_providers(cls):
@@ -279,11 +296,29 @@ class Target:
                 break
         return response
 
+    def companions(self) -> list[Path]:
+        """Sibling files sharing the target's stem, e.g. subtitles and nfos.
+
+        These bypass ``--mask`` so that files never processed on their own,
+        like ``.nfo`` sidecars, still follow their media file.
+        """
+        if not self._settings.move_companions or not self.source.parent.is_dir():
+            return []
+        return sorted(
+            path
+            for path in self.source.parent.iterdir()
+            if path != self.source and path.is_file() and path.stem == self.source.stem
+        )
+
     def relocate(self) -> None:
         """Performs the action of renaming and/or moving a file."""
         destination_path = Path(self.destination).resolve()
+        companions = self.companions()
         destination_path.parent.mkdir(parents=True, exist_ok=True)
         try:
             _dest = move(str(self.source), destination_path)
+            for companion in companions:
+                companion_name = destination_path.stem + companion.suffix
+                move(str(companion), destination_path.parent / companion_name)
         except OSError as e:  # pragma: no cover
             raise MnamerException from e

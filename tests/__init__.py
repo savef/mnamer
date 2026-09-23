@@ -24,6 +24,7 @@ DEFAULT_SETTINGS = {
     "lower": False,
     "mask": [".avi", ".m4v", ".mp4", ".mkv", ".ts", ".wmv"] + SUBTITLE_CONTAINERS,
     "media": None,
+    "move_companions": False,
     "movie_api": ProviderType.TMDB,
     "movie_directory": None,
     "movie_format": "{name} ({year}).{extension}",

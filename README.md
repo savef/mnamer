@@ -62,6 +62,7 @@ PARAMETERS:
   --ignore=<PATTERN,...>: ignore files matching these regular expressions
   --language=<LANG>: specify the search language
   --mask=<EXTENSION,...>: only process given file types
+  --move-companions: move sibling files sharing a media file's name
   --no-guess: disable best guess; e.g. when no matches or network down
   --no-overwrite: prevent relocation if it would overwrite a file
   --no-rename: relocate files without renaming them
