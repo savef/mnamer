@@ -84,6 +84,25 @@ def test_no_rename(e2e_run, setup_test_files):
 
 
 @pytest.mark.usefixtures("setup_test_dir")
+def test_clean_empty_dirs(e2e_run, setup_test_files):
+    setup_test_files(
+        "Aladdin.1992/aladdin.1992.avi",
+        "Saw.2004/saw.2004.avi",
+        "Saw.2004/notes.txt",
+    )
+    result = e2e_run(
+        "--batch",
+        "--recurse",
+        "--clean-empty-dirs",
+        "--movie-directory={name} ({year})",
+        ".",
+    )
+    assert result.code == 0
+    assert not Path("Aladdin.1992").exists()  # emptied, so removed
+    assert Path("Saw.2004/notes.txt").exists()  # still holds a file, so kept
+
+
+@pytest.mark.usefixtures("setup_test_dir")
 def test_ignore(e2e_run, setup_test_files):
     setup_test_files(
         "Downloads/the.goonies.1985.mkv",

@@ -57,6 +57,7 @@ PARAMETERS:
   -r, --recurse: search for files within nested directories
   -s, --scene: use dots in place of alphanumeric chars
   -v, --verbose: increase output verbosity
+  --clean-empty-dirs: remove source directories left empty after moving
   --hits=<NUMBER>: limit the maximum number of hits for each query
   --ignore=<PATTERN,...>: ignore files matching these regular expressions
   --language=<LANG>: specify the search language

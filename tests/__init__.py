@@ -9,6 +9,7 @@ from mnamer.types import ProviderType
 
 DEFAULT_SETTINGS = {
     "batch": False,
+    "clean_empty_dirs": False,
     "config_dump": False,
     "config_ignore": False,
     "episode_api": ProviderType.TVMAZE,

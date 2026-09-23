@@ -81,6 +81,16 @@ class SettingStore:
             help="-v, --verbose: increase output verbosity",
         ).as_dict(),
     )
+    clean_empty_dirs: bool = dataclasses.field(
+        default=False,
+        metadata=SettingSpec(
+            action="store_true",
+            dest="clean_empty_dirs",
+            flags=["--clean_empty_dirs", "--clean-empty-dirs", "--cleanemptydirs"],
+            group=SettingType.PARAMETER,
+            help="--clean-empty-dirs: remove source directories left empty after moving",
+        ).as_dict(),
+    )
     hits: int = dataclasses.field(
         default=5,
         metadata=SettingSpec(

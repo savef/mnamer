@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import override
 
 from mnamer import tty
@@ -66,6 +67,7 @@ class Frontend(ABC):
 
 class Cli(Frontend):
     success_count: int
+    emptied_dirs: set[Path]
 
     def __init__(self, settings: SettingStore):
         super().__init__(settings)
@@ -73,6 +75,7 @@ class Cli(Frontend):
             tty.error(USAGE)
             raise SystemExit(2)
         self.success_count = 0
+        self.emptied_dirs = set()
 
     @property
     def total_count(self):
@@ -83,6 +86,7 @@ class Cli(Frontend):
         tty.msg("Starting mnamer", MessageType.HEADING)
         self._ensure_targets()
         self._process_targets()
+        self._clean_empty_dirs()
         self._report_results()
 
     def _ensure_targets(self) -> None:
@@ -191,6 +195,24 @@ class Cli(Frontend):
         else:
             tty.msg("OK!", MessageType.SUCCESS)
             self.success_count += 1
+            self.emptied_dirs.add(target.source.parent)
+
+    def _clean_empty_dirs(self) -> None:
+        """Removes source directories left empty by relocating their contents."""
+        if not self.settings.clean_empty_dirs:
+            return
+        # deepest first so nested directories collapse in a single pass
+        for directory in sorted(
+            self.emptied_dirs, key=lambda path: len(path.parts), reverse=True
+        ):
+            if not directory.is_dir() or any(directory.iterdir()):
+                continue
+            try:
+                directory.rmdir()
+            except OSError:
+                tty.msg(f"could not remove {directory}", MessageType.ALERT)
+            else:
+                tty.msg(f"removed empty directory {directory}", MessageType.ALERT)
 
     def _report_results(self) -> None:
         if self.success_count == 0:
