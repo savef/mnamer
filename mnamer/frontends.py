@@ -116,6 +116,9 @@ class Cli(Frontend):
                     match = matches[0] if matches else target.metadata
                 elif not matches:
                     match = tty.metadata_guess(target.metadata)
+                elif len(matches) == 1 and self.settings.accept_single:
+                    match = matches[0]
+                    tty.msg(f"single match: {match}", MessageType.ALERT)
                 else:
                     match = tty.metadata_prompt(matches)
             except MnamerSkipException:

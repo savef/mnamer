@@ -81,6 +81,16 @@ class SettingStore:
             help="-v, --verbose: increase output verbosity",
         ).as_dict(),
     )
+    accept_single: bool = dataclasses.field(
+        default=False,
+        metadata=SettingSpec(
+            action="store_true",
+            dest="accept_single",
+            flags=["--accept_single", "--accept-single", "--acceptsingle"],
+            group=SettingType.PARAMETER,
+            help="--accept-single: skip the prompt when only one match is found",
+        ).as_dict(),
+    )
     clean_empty_dirs: bool = dataclasses.field(
         default=False,
         metadata=SettingSpec(

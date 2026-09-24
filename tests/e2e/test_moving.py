@@ -162,6 +162,16 @@ def test_in_place(e2e_run, setup_test_files, tmp_path, monkeypatch):
 
 
 @pytest.mark.usefixtures("setup_test_dir")
+def test_accept_single(e2e_run, setup_test_files):
+    setup_test_files("aladdin.1992.avi")
+    # without --batch a lone match is taken rather than prompted for
+    result = e2e_run("--accept-single", "--test", ".")
+    assert result.code == 0
+    assert "single match: Aladdin (1992)" in result.out
+    assert "1 out of 1 files processed successfully" in result.out
+
+
+@pytest.mark.usefixtures("setup_test_dir")
 def test_ignore(e2e_run, setup_test_files):
     setup_test_files(
         "Downloads/the.goonies.1985.mkv",
