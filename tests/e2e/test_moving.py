@@ -127,6 +127,41 @@ def test_move_companions(e2e_run, setup_test_files):
 
 
 @pytest.mark.usefixtures("setup_test_dir")
+def test_depth(e2e_run, setup_test_files):
+    setup_test_files(
+        "aladdin.1992.avi",
+        "Saw.2004/saw.2004.avi",
+        "Saw.2004/Extras/behind.the.scenes.avi",
+    )
+    result = e2e_run("--batch", "--test", "--depth=1", ".")
+    assert result.code == 0
+    assert "behind.the.scenes" not in result.out  # two levels down, not searched
+    assert "2 out of 2 files processed successfully" in result.out
+
+
+@pytest.mark.usefixtures("setup_test_dir")
+def test_in_place(e2e_run, setup_test_files, tmp_path, monkeypatch):
+    setup_test_files("aladdin.1992.avi", "Saw.2004/saw.2004.avi")
+    target = Path.cwd()
+    monkeypatch.chdir(tmp_path)  # run from somewhere else entirely
+    result = e2e_run(
+        "--batch",
+        "--depth=1",
+        "--in-place",
+        "--no-rename",
+        "--clean-empty-dirs",
+        "--movie-directory={name} ({year})",
+        str(target),
+    )
+    assert result.code == 0
+    # folders land beside the media, not in the working directory
+    assert (target / "Aladdin (1992)/aladdin.1992.avi").exists()
+    assert (target / "Saw (2004)/saw.2004.avi").exists()
+    assert not (tmp_path / "Aladdin (1992)").exists()
+    assert not (target / "Saw.2004").exists()  # emptied, so removed
+
+
+@pytest.mark.usefixtures("setup_test_dir")
 def test_ignore(e2e_run, setup_test_files):
     setup_test_files(
         "Downloads/the.goonies.1985.mkv",

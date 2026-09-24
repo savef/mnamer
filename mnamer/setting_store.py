@@ -91,6 +91,15 @@ class SettingStore:
             help="--clean-empty-dirs: remove source directories left empty after moving",
         ).as_dict(),
     )
+    depth: int = dataclasses.field(
+        default=0,
+        metadata=SettingSpec(
+            flags=["--depth"],
+            group=SettingType.PARAMETER,
+            help="--depth=<NUMBER>: levels of subdirectories to search",
+            typevar=int,
+        ).as_dict(),
+    )
     hits: int = dataclasses.field(
         default=5,
         metadata=SettingSpec(
@@ -107,6 +116,16 @@ class SettingStore:
             group=SettingType.PARAMETER,
             help="--ignore=<PATTERN,...>: ignore files matching these regular expressions",
             nargs="+",
+        ).as_dict(),
+    )
+    in_place: bool = dataclasses.field(
+        default=False,
+        metadata=SettingSpec(
+            action="store_true",
+            dest="in_place",
+            flags=["--in_place", "--in-place", "--inplace"],
+            group=SettingType.PARAMETER,
+            help="--in-place: resolve relative directories against the target path",
         ).as_dict(),
     )
     language: Language | None = dataclasses.field(

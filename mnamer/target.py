@@ -55,7 +55,7 @@ class Target:
     @classmethod
     def populate_paths(cls, settings: SettingStore) -> list[Self]:
         """Creates a list of Target objects for media files found in paths."""
-        file_paths = crawl_in(settings.targets, settings.recurse)
+        file_paths = crawl_in(settings.targets, settings.recurse, settings.depth)
         file_paths = filter_blacklist(file_paths, settings.ignore)
         file_paths = filter_containers(file_paths, settings.mask)
         targets = [cls(file_path, settings) for file_path in file_paths]
@@ -111,6 +111,8 @@ class Target:
         """
         if self.directory:
             dir_head = self._format_directory(self.directory)
+            if self._settings.in_place and not dir_head.is_absolute():
+                dir_head = Path(self._anchor, dir_head)
         else:
             dir_head = self.source.parent
 
@@ -122,6 +124,24 @@ class Target:
         else:
             filename = self._process_filename(filename)
         return Path(directory, filename).resolve()
+
+    @property
+    def _anchor(self) -> Path:
+        """The crawl target this file was found under.
+
+        Used by ``--in-place`` so that relative directories land beside the
+        media being organised rather than in the working directory.
+        """
+        source = self.source.resolve()
+        bases = [
+            base
+            for target in self._settings.targets
+            for base in [Path(target).resolve()]
+            if (base if base.is_dir() else base.parent) in source.parents
+        ]
+        if not bases:
+            return source.parent
+        return max(bases, key=lambda path: len(path.parts))
 
     def _format_directory(self, directory: Path) -> Path:
         """Format and post-process a configured directory template.

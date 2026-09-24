@@ -33,8 +33,14 @@ def clear_cache():
     get_session().cache.clear()
 
 
-def crawl_in(file_paths: list[Path], recurse: bool = False) -> list[Path]:
-    """Looks for files amongst or within paths provided."""
+def crawl_in(
+    file_paths: list[Path], recurse: bool = False, depth: int = 0
+) -> list[Path]:
+    """Looks for files amongst or within paths provided.
+
+    Without ``recurse`` the search is limited to ``depth`` levels of
+    subdirectories below each path, zero meaning its immediate contents.
+    """
     found_files = set()
     for file_path in file_paths:
         if not file_path.exists():
@@ -42,11 +48,12 @@ def crawl_in(file_paths: list[Path], recurse: bool = False) -> list[Path]:
         if file_path.is_file():
             found_files.add(Path(file_path).absolute())
             continue
-        for root, _dirs, files in walk(file_path):
+        for root, dirs, files in walk(file_path):
             for file in files:
                 found_files.add(Path(root, file).absolute())
-            if not recurse:
-                break
+            level = len(Path(root).relative_to(file_path).parts)
+            if not recurse and level >= depth:
+                dirs.clear()  # stop descending any further
     return sorted(found_files)
 
 

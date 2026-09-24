@@ -58,8 +58,10 @@ PARAMETERS:
   -s, --scene: use dots in place of alphanumeric chars
   -v, --verbose: increase output verbosity
   --clean-empty-dirs: remove source directories left empty after moving
+  --depth=<NUMBER>: levels of subdirectories to search
   --hits=<NUMBER>: limit the maximum number of hits for each query
   --ignore=<PATTERN,...>: ignore files matching these regular expressions
+  --in-place: resolve relative directories against the target path
   --language=<LANG>: specify the search language
   --mask=<EXTENSION,...>: only process given file types
   --move-companions: move sibling files sharing a media file's name
