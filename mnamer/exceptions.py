@@ -13,6 +13,10 @@ class MnamerAbortException(MnamerException):
     """Raised when the user has chosen to quit the application."""
 
 
+class MnamerEditException(MnamerException):
+    """Raised when the user has chosen to type a title in by hand."""
+
+
 class MnamerNetworkException(MnamerException):
     """Raised when a network request is unaccepted; ie. no internet connection."""
 

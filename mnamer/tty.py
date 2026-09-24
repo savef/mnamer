@@ -2,16 +2,22 @@
 
 import traceback
 from collections.abc import Callable
+from copy import deepcopy
 from typing import Any
 
 from teletype import codes
 from teletype.components import ChoiceHelper, SelectOne
-from teletype.io import style_format, style_print
+from teletype.io import style_format, style_input, style_print
 
 from mnamer.const import SYSTEM
-from mnamer.exceptions import MnamerAbortException, MnamerException, MnamerSkipException
+from mnamer.exceptions import (
+    MnamerAbortException,
+    MnamerEditException,
+    MnamerException,
+    MnamerSkipException,
+)
 from mnamer.language import Language
-from mnamer.metadata import Metadata
+from mnamer.metadata import Metadata, MetadataEpisode
 from mnamer.setting_store import SettingStore
 from mnamer.types import MessageType
 from mnamer.utils import format_dict, format_exception, format_iter
@@ -44,6 +50,24 @@ def _abort_helpers() -> tuple[
         ChoiceHelper(MnamerSkipException(), "skip", style, skip_mnemonic),
         ChoiceHelper(MnamerAbortException(), "quit", style, quit_mnemonic),
     )
+
+
+def _edit_helper() -> ChoiceHelper[MnamerEditException]:
+    if no_style:
+        return ChoiceHelper(MnamerEditException(), "enter name", None, "[e]")
+    return ChoiceHelper(MnamerEditException(), "enter name", "dark", "e")
+
+
+def _manual_entry(metadata: Metadata) -> Metadata:
+    """Prompts for a title typed by hand, returning a copy which uses it."""
+    field = "series" if isinstance(metadata, MetadataEpisode) else "name"
+    current = getattr(metadata, field, None) or ""
+    value = style_input(f"name [{current}]: ").strip()
+    if not value:
+        return metadata
+    updated = deepcopy(metadata)
+    setattr(updated, field, value)
+    return updated
 
 
 def _msg_format(body: Any) -> str:
@@ -85,8 +109,10 @@ def error(body: Any):
 def metadata_prompt(matches: list[Metadata]) -> Metadata:  # pragma: no cover
     """Prompts user to choose a match from a list of matches."""
     msg("select match")
-    selector = SelectOne([*matches, *_abort_helpers()], **_chars())
+    selector = SelectOne([*matches, _edit_helper(), *_abort_helpers()], **_chars())
     choice = selector.prompt()
+    if isinstance(choice, MnamerEditException):
+        return _manual_entry(matches[0])
     if isinstance(choice, MnamerAbortException | MnamerSkipException):
         raise choice
     return choice
@@ -100,8 +126,10 @@ def metadata_guess(metadata: Metadata) -> Metadata:  # pragma: no cover
     else:
         label += style_format(" (best guess)", "blue")
     option = ChoiceHelper(metadata, label)
-    selector = SelectOne([option, *_abort_helpers()], **_chars())
+    selector = SelectOne([option, _edit_helper(), *_abort_helpers()], **_chars())
     choice = selector.prompt()
+    if isinstance(choice, MnamerEditException):
+        return _manual_entry(metadata)
     if isinstance(choice, MnamerAbortException | MnamerSkipException):
         raise choice
     else:
