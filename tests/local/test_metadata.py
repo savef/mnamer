@@ -123,3 +123,32 @@ def test_metadata_movie__format_with_specifiers():
     expected = "P/Pineapple Express"
     actual = format(metadata, format_spec)
     assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("parsed", "candidate", "expected"),
+    (
+        # loose punctuation and casing still count as the same title
+        (("Kill Bill Vol 1", 2003), ("Kill Bill Vol. 1", 2003), True),
+        (("yesterday", 2019), ("Yesterday", 2019), True),
+        # a longer title containing the parsed one is not a match
+        (("Yesterday", 2019), ("See You Yesterday", 2019), False),
+        (("Zootopia", 2016), ("Imagining Zootopia", 2016), False),
+        # the year must agree when one was parsed
+        (("Aladdin", 1992), ("Aladdin", 2019), False),
+        (("Aladdin", None), ("Aladdin", 2019), True),
+        # an unparsed title never matches
+        ((None, 2019), ("Yesterday", 2019), False),
+    ),
+)
+def test_metadata_movie__matches_exactly(parsed, candidate, expected):
+    name, year = parsed
+    other_name, other_year = candidate
+    metadata = MetadataMovie(name=name, year=year)
+    other = MetadataMovie(name=other_name, year=other_year)
+    assert metadata.matches_exactly(other) is expected
+
+
+def test_metadata_movie__matches_exactly__wrong_media_type():
+    metadata = MetadataMovie(name="Fargo", year=1996)
+    assert metadata.matches_exactly(MetadataEpisode(series="Fargo")) is False

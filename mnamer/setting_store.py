@@ -91,6 +91,16 @@ class SettingStore:
             help="--accept-single: skip the prompt when only one match is found",
         ).as_dict(),
     )
+    accept_exact: bool = dataclasses.field(
+        default=False,
+        metadata=SettingSpec(
+            action="store_true",
+            dest="accept_exact",
+            flags=["--accept_exact", "--accept-exact", "--acceptexact"],
+            group=SettingType.PARAMETER,
+            help="--accept-exact: skip the prompt when one match names the same title",
+        ).as_dict(),
+    )
     clean_empty_dirs: bool = dataclasses.field(
         default=False,
         metadata=SettingSpec(

@@ -11,6 +11,7 @@ from mnamer.exceptions import (
     MnamerNotFoundException,
     MnamerSkipException,
 )
+from mnamer.metadata import Metadata
 from mnamer.setting_store import SettingStore
 from mnamer.target import Target
 from mnamer.types import MessageType
@@ -119,6 +120,9 @@ class Cli(Frontend):
                 elif len(matches) == 1 and self.settings.accept_single:
                     match = matches[0]
                     tty.msg(f"single match: {match}", MessageType.ALERT)
+                elif exact := self._exact_match(target, matches):
+                    match = exact
+                    tty.msg(f"exact match: {match}", MessageType.ALERT)
                 else:
                     match = tty.metadata_prompt(matches)
             except MnamerSkipException:
@@ -161,6 +165,13 @@ class Cli(Frontend):
                 continue
 
             self._rename_and_move_file(target)
+
+    def _exact_match(self, target: Target, matches: list[Metadata]) -> Metadata | None:
+        """The sole match naming the same title as the parsed filename, if any."""
+        if not self.settings.accept_exact:
+            return None
+        exact = [match for match in matches if target.metadata.matches_exactly(match)]
+        return exact[0] if len(exact) == 1 else None
 
     def _announce_file(self, target: Target):
         media_type = target.metadata.to_media_type().value.title()

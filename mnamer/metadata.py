@@ -15,6 +15,7 @@ from mnamer.utils import (
     normalize_container,
     parse_date,
     str_fix_padding,
+    str_key,
     str_replace_slashes,
     str_title_case,
     year_parse,
@@ -100,6 +101,10 @@ class Metadata:
             value = str_title_case(value)
         return value
 
+    def matches_exactly(self, other: Metadata) -> bool:
+        """Whether another instance names the same title and numbering."""
+        return False
+
     def update(self, metadata: Metadata):
         """Overlays all none value from another Metadata instance."""
         for field in dataclasses.asdict(self).keys():
@@ -139,6 +144,14 @@ class MetadataMovie(Metadata):
         if value is not None and converter:
             value = converter(value)
         super().__setattr__(key, value)
+
+    @override
+    def matches_exactly(self, other: Metadata) -> bool:
+        if not isinstance(other, MetadataMovie) or not str_key(self.name):
+            return False
+        return str_key(other.name) == str_key(self.name) and (
+            self.year is None or other.year == self.year
+        )
 
 
 @dataclasses.dataclass
@@ -185,3 +198,13 @@ class MetadataEpisode(Metadata):
         if value is not None and converter:
             value = converter(value)
         super().__setattr__(key, value)
+
+    @override
+    def matches_exactly(self, other: Metadata) -> bool:
+        if not isinstance(other, MetadataEpisode) or not str_key(self.series):
+            return False
+        return (
+            str_key(other.series) == str_key(self.series)
+            and (self.season is None or other.season == self.season)
+            and (self.episode is None or other.episode == self.episode)
+        )

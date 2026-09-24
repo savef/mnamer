@@ -57,6 +57,7 @@ PARAMETERS:
   -r, --recurse: search for files within nested directories
   -s, --scene: use dots in place of alphanumeric chars
   -v, --verbose: increase output verbosity
+  --accept-exact: skip the prompt when one match names the same title
   --accept-single: skip the prompt when only one match is found
   --clean-empty-dirs: remove source directories left empty after moving
   --depth=<NUMBER>: levels of subdirectories to search

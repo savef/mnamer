@@ -320,6 +320,11 @@ def str_fix_padding(s: str) -> str:
     return s if len_before == len_after else str_fix_padding(s)
 
 
+def str_key(s: str | None) -> str:
+    """Normalizes a string for loose equality, e.g. 'Kill Bill Vol. 1' -> 'kill bill vol 1'."""
+    return re.sub(r"[^a-z0-9]+", " ", str(s or "").lower()).strip()
+
+
 def str_replace(s: str, replacements: dict[str, str]) -> str:
     """Replaces keys in replacements dict with their values."""
     for word, replacement in replacements.items():

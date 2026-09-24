@@ -8,6 +8,7 @@ from mnamer.language import Language
 from mnamer.types import ProviderType
 
 DEFAULT_SETTINGS = {
+    "accept_exact": False,
     "accept_single": False,
     "batch": False,
     "clean_empty_dirs": False,
