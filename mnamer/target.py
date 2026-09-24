@@ -166,6 +166,10 @@ class Target:
         """Split a formatted file template into optional directories and filename."""
         formatted_path = Path(file_path)
         dir_tail = formatted_path.parent
+        if dir_tail.is_absolute():
+            # an empty leading field, e.g. "{decade}/" without a year, must not
+            # turn the template into an absolute path and discard the directory
+            dir_tail = Path(*dir_tail.parts[1:])
         if str(dir_tail) == ".":
             dir_tail = Path()
         return dir_tail, formatted_path.name

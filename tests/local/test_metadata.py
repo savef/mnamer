@@ -152,3 +152,16 @@ def test_metadata_movie__matches_exactly(parsed, candidate, expected):
 def test_metadata_movie__matches_exactly__wrong_media_type():
     metadata = MetadataMovie(name="Fargo", year=1996)
     assert metadata.matches_exactly(MetadataEpisode(series="Fargo")) is False
+
+
+@pytest.mark.parametrize(
+    ("year", "expected"),
+    ((1990, "1990s"), (1995, "1990s"), (2007, "2000s"), (2025, "2020s"), (None, None)),
+)
+def test_metadata_movie__decade(year, expected):
+    assert MetadataMovie(name="A Film", year=year).decade == expected
+
+
+def test_metadata_episode__decade():
+    assert MetadataEpisode(series="A Show", date=dt.date(2011, 5, 15)).decade == "2010s"
+    assert MetadataEpisode(series="A Show").decade is None

@@ -83,6 +83,11 @@ class Metadata:
         return self.__format__(None)
 
     @property
+    def decade(self) -> str | None:
+        """The decade a title belongs to, e.g. '1990s'."""
+        return None
+
+    @property
     def extension(self):
         if is_subtitle(self.container) and self.language_sub:
             return f".{self.language_sub.a2}{self.container}"
@@ -91,6 +96,7 @@ class Metadata:
 
     def as_dict(self) -> dict[str, Any]:
         d = dataclasses.asdict(self)
+        d["decade"] = self.decade
         d["extension"] = self.extension
         return d
 
@@ -145,6 +151,11 @@ class MetadataMovie(Metadata):
             value = converter(value)
         super().__setattr__(key, value)
 
+    @property
+    @override
+    def decade(self) -> str | None:
+        return f"{int(self.year) // 10 * 10}s" if self.year else None
+
     @override
     def matches_exactly(self, other: Metadata) -> bool:
         if not isinstance(other, MetadataMovie) or not str_key(self.name):
@@ -198,6 +209,11 @@ class MetadataEpisode(Metadata):
         if value is not None and converter:
             value = converter(value)
         super().__setattr__(key, value)
+
+    @property
+    @override
+    def decade(self) -> str | None:
+        return f"{self.date.year // 10 * 10}s" if self.date else None
 
     @override
     def matches_exactly(self, other: Metadata) -> bool:

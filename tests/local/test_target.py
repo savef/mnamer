@@ -263,6 +263,30 @@ def test_destination__no_rename_preserves_source_filename():
     )
 
 
+def test_destination__decade_directory():
+    """{decade} groups a film into its decade beneath the configured directory."""
+    settings = SettingStore(
+        batch=True,
+        media=MediaType.MOVIE,
+        movie_directory=Path("Movies"),
+        movie_format="{decade}/{name} ({year}).{extension}",
+    )
+    target = Target(Path("ninja turtles (1990).mkv"), settings)
+    assert target.destination == Path("Movies/1990s/Ninja Turtles (1990).mkv").resolve()
+
+
+def test_destination__empty_leading_field_stays_relative():
+    """An empty {decade} must not make the template an absolute path."""
+    settings = SettingStore(
+        batch=True,
+        media=MediaType.MOVIE,
+        movie_directory=Path("Movies"),
+        movie_format="{decade}/{name}.{extension}",
+    )
+    target = Target(Path("some unmatched film.mkv"), settings)
+    assert target.destination == Path("Movies/Some Unmatched Film.mkv").resolve()
+
+
 def test_query():
     pass  # TODO
 
