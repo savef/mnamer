@@ -87,7 +87,6 @@ class Cli(Frontend):
         tty.msg("Starting mnamer", MessageType.HEADING)
         self._ensure_targets()
         self._process_targets()
-        self._clean_empty_dirs()
         self._report_results()
 
     def _ensure_targets(self) -> None:
@@ -165,6 +164,7 @@ class Cli(Frontend):
                 continue
 
             self._rename_and_move_file(target)
+            self._clean_empty_dirs()
 
     def _exact_match(self, target: Target, matches: list[Metadata]) -> Metadata | None:
         """The sole match naming the same title as the parsed filename, if any."""
@@ -228,6 +228,7 @@ class Cli(Frontend):
             except OSError:
                 tty.msg(f"could not remove {directory}", MessageType.ALERT)
             else:
+                self.emptied_dirs.discard(directory)
                 tty.msg(f"removed empty directory {directory}", MessageType.ALERT)
 
     def _report_results(self) -> None:
