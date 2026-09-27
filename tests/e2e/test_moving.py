@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from mnamer.const import SUBTITLE_CONTAINERS
+from mnamer.exceptions import MnamerSkipException
 
 pytestmark = [
     pytest.mark.e2e,
@@ -169,6 +170,22 @@ def test_accept_single(e2e_run, setup_test_files):
     assert result.code == 0
     assert "single match: Aladdin (1992)" in result.out
     assert "1 out of 1 files processed successfully" in result.out
+
+
+@pytest.mark.usefixtures("setup_test_dir")
+def test_skip_covers_other_parts_of_the_same_title(e2e_run, setup_test_files, mocker):
+    setup_test_files(
+        "World.On.A.Wire.1973.Part1.720p-CiNEFiLE.mkv",
+        "World.On.A.Wire.1973.Part2.720p-CiNEFiLE.mkv",
+        "made up movie.mp4",
+    )
+    guess = mocker.patch("mnamer.tty.metadata_guess", side_effect=MnamerSkipException)
+    result = e2e_run(".")
+    assert result.code == 0
+    # asked once for the two parts, then again for the unrelated film
+    assert guess.call_count == 2
+    assert result.out.count("skipping (title already skipped)") == 1
+    assert "0 out of 3 files processed successfully" in result.out
 
 
 @pytest.mark.usefixtures("setup_test_dir")

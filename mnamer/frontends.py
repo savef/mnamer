@@ -96,8 +96,14 @@ class Cli(Frontend):
             raise SystemExit(0)
 
     def _process_targets(self) -> None:
+        skipped: set[tuple[Path, str]] = set()
         for target in self.targets:
             self._announce_file(target)
+            # parts of one title share an identity, unlike its neighbours
+            skip_key = (target.source.parent, str(target.metadata))
+            if skip_key in skipped:
+                tty.msg("skipping (title already skipped)", MessageType.ALERT)
+                continue
             self._list_details(target)
 
             # find match for target
@@ -125,6 +131,7 @@ class Cli(Frontend):
                 else:
                     match = tty.metadata_prompt(matches)
             except MnamerSkipException:
+                skipped.add(skip_key)
                 tty.msg("skipping (user request)", MessageType.ALERT)
                 continue
             except MnamerAbortException:
@@ -146,6 +153,7 @@ class Cli(Frontend):
                 try:
                     target.metadata.language_sub = tty.subtitle_prompt()
                 except MnamerSkipException:
+                    skipped.add(skip_key)
                     tty.msg("skipping (user request)", MessageType.ALERT)
                     continue
                 except MnamerAbortException:
