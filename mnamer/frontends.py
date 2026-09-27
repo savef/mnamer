@@ -15,7 +15,13 @@ from mnamer.metadata import Metadata
 from mnamer.setting_store import SettingStore
 from mnamer.target import Target
 from mnamer.types import MessageType
-from mnamer.utils import clear_cache, get_filesize, is_subtitle
+from mnamer.utils import (
+    clear_cache,
+    get_filesize,
+    is_subtitle,
+    str_replace,
+    str_unusual_chars,
+)
 
 
 class Frontend(ABC):
@@ -160,6 +166,25 @@ class Cli(Frontend):
                     tty.msg("aborting (user request)", MessageType.ERROR)
                     break
 
+            unusual = str_unusual_chars(
+                str_replace(self._title_of(target), self.settings.replace_after)
+            )
+            if unusual and not self.settings.batch:
+                try:
+                    target.metadata.update(tty.unusual_prompt(target.metadata, unusual))
+                except MnamerSkipException:
+                    skipped.add(skip_key)
+                    tty.msg("skipping (user request)", MessageType.ALERT)
+                    continue
+                except MnamerAbortException:
+                    tty.msg("aborting (user request)", MessageType.ERROR)
+                    break
+            elif unusual:
+                tty.msg(
+                    f"unusual characters in title: {' '.join(unusual)}",
+                    MessageType.ALERT,
+                )
+
             # sanity check move
             if target.destination == target.source:
                 tty.msg(
@@ -173,6 +198,13 @@ class Cli(Frontend):
 
             self._rename_and_move_file(target)
             self._clean_empty_dirs()
+
+    @staticmethod
+    def _title_of(target: Target) -> str:
+        metadata = target.metadata
+        return (
+            getattr(metadata, "series", None) or getattr(metadata, "name", None) or ""
+        )
 
     def _exact_match(self, target: Target, matches: list[Metadata]) -> Metadata | None:
         """The sole match naming the same title as the parsed filename, if any."""

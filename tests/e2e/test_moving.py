@@ -189,6 +189,18 @@ def test_skip_covers_other_parts_of_the_same_title(e2e_run, setup_test_files, mo
 
 
 @pytest.mark.usefixtures("setup_test_dir")
+def test_unusual_chars_warn_in_batch(e2e_run, setup_test_files, mocker):
+    setup_test_files("aladdin.1992.avi")
+    mocker.patch(
+        "mnamer.frontends.Cli._title_of", return_value="“aladdin” \u00b7 special"
+    )
+    result = e2e_run("--batch", "--test", ".")
+    assert result.code == 0
+    assert "unusual characters in title:" in result.out
+    assert "1 out of 1 files processed successfully" in result.out
+
+
+@pytest.mark.usefixtures("setup_test_dir")
 def test_ignore(e2e_run, setup_test_files):
     setup_test_files(
         "Downloads/the.goonies.1985.mkv",

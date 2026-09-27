@@ -320,6 +320,16 @@ def str_fix_padding(s: str) -> str:
     return s if len_before == len_after else str_fix_padding(s)
 
 
+_COMMON_PUNCTUATION = frozenset(" .,-'()[]!?_")
+
+
+def str_unusual_chars(s: str) -> list[str]:
+    """Characters which are neither alphanumeric nor common punctuation."""
+    return list(
+        dict.fromkeys(c for c in s if not c.isalnum() and c not in _COMMON_PUNCTUATION)
+    )
+
+
 def str_key(s: str | None) -> str:
     """Normalizes a string for loose equality, e.g. 'Kill Bill Vol. 1' -> 'kill bill vol 1'."""
     return re.sub(r"[^a-z0-9]+", " ", str(s or "").lower()).strip()

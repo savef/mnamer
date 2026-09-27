@@ -147,6 +147,19 @@ def subtitle_prompt() -> Language:
         return choice
 
 
+def unusual_prompt(metadata: Metadata, chars: list[str]) -> Metadata:
+    """Prompts to confirm or retype a title containing unusual characters."""
+    msg(f"unusual characters in title: {' '.join(chars)}", MessageType.ALERT)
+    option = ChoiceHelper(metadata, f"{metadata} (keep)")
+    selector = SelectOne([option, _edit_helper(), *_abort_helpers()], **_chars())
+    choice = selector.prompt()
+    if isinstance(choice, MnamerEditException):
+        return _manual_entry(metadata)
+    if isinstance(choice, MnamerAbortException | MnamerSkipException):
+        raise choice
+    return choice
+
+
 def crash_report():  # pragma: no cover
     s = f"""
 ============================== CRASH REPORT BEGIN ==============================

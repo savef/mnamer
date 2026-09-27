@@ -26,6 +26,7 @@ from mnamer.utils import (
     str_sanitize,
     str_scenify,
     str_title_case,
+    str_unusual_chars,
     year_parse,
     year_range_parse,
 )
@@ -886,3 +887,18 @@ def test_year_range_parse__unexpected(t: int, s: str):
     expected = (1900 - t, CURRENT_YEAR + t)
     actual = year_range_parse(s, t)
     assert actual == expected
+
+
+@pytest.mark.parametrize(
+    ("s", "expected"),
+    (
+        ("“wuthering Heights” (2026)", ["\u201c", "\u201d"]),
+        ("WALL\u00b7E (2008)", ["\u00b7"]),
+        ("Les Misérables (2019)", []),
+        ("Ocean's Eleven (2001)", []),
+        ("Crouching Tiger, Hidden Dragon (2000)", []),
+        ("Wake Up Dead Man - A Knives Out Mystery (2025)", []),
+    ),
+)
+def test_str_unusual_chars(s: str, expected: list[str]):
+    assert str_unusual_chars(s) == expected
