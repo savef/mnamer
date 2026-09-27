@@ -38,7 +38,7 @@ DEFAULT_SETTINGS = {
     "no_rename": False,
     "no_style": False,
     "recurse": False,
-    "replace_after": {"&": "and", ";": ",", "@": "at"},
+    "replace_after": {"&": "and", ":": " - ", ";": ",", "@": "at"},
     "replace_before": {},
     "scene": False,
     "targets": [],

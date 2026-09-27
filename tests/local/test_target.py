@@ -287,6 +287,16 @@ def test_destination__empty_leading_field_stays_relative():
     assert target.destination == Path("Movies/Some Unmatched Film.mkv").resolve()
 
 
+def test_destination__colon_becomes_dash():
+    """Colons are invalid on many filesystems, so they dash rather than vanish."""
+    settings = SettingStore(batch=True, media=MediaType.MOVIE)
+    target = Target(Path("wake up dead man 2025.mkv"), settings)
+    target.metadata.name = "Wake Up Dead Man: A Knives Out Mystery"
+    assert (
+        target.destination.name == "Wake Up Dead Man - A Knives Out Mystery (2025).mkv"
+    )
+
+
 def test_query():
     pass  # TODO
 

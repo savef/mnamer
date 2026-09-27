@@ -423,7 +423,7 @@ class SettingStore:
         metadata=SettingSpec(group=SettingType.CONFIGURATION).as_dict(),
     )
     replace_after: dict[str, str] = dataclasses.field(
-        default_factory=lambda: {"&": "and", "@": "at", ";": ","},
+        default_factory=lambda: {"&": "and", "@": "at", ";": ",", ":": " - "},
         metadata=SettingSpec(group=SettingType.CONFIGURATION).as_dict(),
     )
 
