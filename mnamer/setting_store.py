@@ -148,6 +148,16 @@ class SettingStore:
             help="--in-place: resolve relative directories against the target path",
         ).as_dict(),
     )
+    year_tolerance: int = dataclasses.field(
+        default=0,
+        metadata=SettingSpec(
+            dest="year_tolerance",
+            flags=["--year_tolerance", "--year-tolerance", "--yeartolerance"],
+            group=SettingType.PARAMETER,
+            help="--year-tolerance=<NUMBER>: years a result may differ by and still match",
+            typevar=int,
+        ).as_dict(),
+    )
     language: Language | None = dataclasses.field(
         default=None,
         metadata=SettingSpec(

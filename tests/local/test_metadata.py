@@ -165,3 +165,17 @@ def test_metadata_movie__decade(year, expected):
 def test_metadata_episode__decade():
     assert MetadataEpisode(series="A Show", date=dt.date(2011, 5, 15)).decade == "2010s"
     assert MetadataEpisode(series="A Show").decade is None
+
+
+def test_metadata_movie__update_keeps_parsed_year():
+    """A year from the filename survives a match dated a year apart."""
+    parsed = MetadataMovie(name="Welcome to Me", year=2014)
+    parsed.update(MetadataMovie(name="Welcome to Me", year="2015-05-01"))
+    assert parsed.name == "Welcome to Me"
+    assert parsed.year == 2014
+
+
+def test_metadata_movie__update_takes_year_when_none_parsed():
+    parsed = MetadataMovie(name="Welcome to Me")
+    parsed.update(MetadataMovie(name="Welcome to Me", year="2015-05-01"))
+    assert parsed.year == 2015

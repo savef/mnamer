@@ -39,12 +39,14 @@ class Provider[M: Metadata](ABC):
 
     api_key: str
     cache: bool = True
+    year_tolerance: int = 0
 
-    def __init__(self, api_key: str = "", cache: bool = True):
+    def __init__(self, api_key: str = "", cache: bool = True, year_tolerance: int = 0):
         """Initializes the provider."""
         if api_key:
             self.api_key = api_key
         self.cache = cache
+        self.year_tolerance = year_tolerance
 
     @classmethod
     def from_settings(cls, settings: SettingStore) -> Self:
@@ -52,7 +54,7 @@ class Provider[M: Metadata](ABC):
         api_field = f"api_key_{cls.__name__.lower()}"
         api_key = getattr(settings, api_field)
         cache = not settings.no_cache
-        return cls(api_key, cache)
+        return cls(api_key, cache, settings.year_tolerance)
 
     @abstractmethod
     def search(self, query: M) -> Iterator[M]:
@@ -104,8 +106,8 @@ class Omdb(Provider[MetadataMovie]):
 
     api_key: str = environ.get("API_KEY_OMDB", "477a7ebc")
 
-    def __init__(self, api_key: str = "", cache: bool = True):
-        super().__init__(api_key, cache)
+    def __init__(self, api_key: str = "", cache: bool = True, year_tolerance: int = 0):
+        super().__init__(api_key, cache, year_tolerance)
         assert self.api_key
 
     @override
@@ -177,8 +179,8 @@ class Tmdb(Provider[MetadataMovie]):
 
     api_key: str = environ.get("API_KEY_TMDB", "db972a607f2760bb19ff8bb34074b4c7")
 
-    def __init__(self, api_key: str = "", cache: bool = True):
-        super().__init__(api_key, cache)
+    def __init__(self, api_key: str = "", cache: bool = True, year_tolerance: int = 0):
+        super().__init__(api_key, cache, year_tolerance)
         assert self.api_key
 
     @override
@@ -229,7 +231,10 @@ class Tmdb(Provider[MetadataMovie]):
                     result_year = year_parse(entry.get("release_date", ""))
                     if result_year is None:
                         continue
-                    if requested_year and result_year != requested_year:
+                    if (
+                        requested_year
+                        and abs(result_year - requested_year) > self.year_tolerance
+                    ):
                         continue
                     found = True
                     yield MetadataMovie(
@@ -256,8 +261,8 @@ class Tvdb(Provider[MetadataEpisode]):
     api_key: str = environ.get("API_KEY_TVDB", "E69C7A2CEF2F3152")
     token: str
 
-    def __init__(self, api_key: str = "", cache: bool = True):
-        super().__init__(api_key, cache)
+    def __init__(self, api_key: str = "", cache: bool = True, year_tolerance: int = 0):
+        super().__init__(api_key, cache, year_tolerance)
         assert self.api_key
         self.token = "" if self.cache else self._login()
 

@@ -196,6 +196,26 @@ def test_tmdb_search__name_stops_at_page_limit(mocker):
     assert mock_search.call_count == 5
 
 
+@pytest.mark.parametrize(
+    ("tolerance", "expected"),
+    ((0, []), (1, ["42"]), (5, ["42"])),
+)
+def test_tmdb_search__name_year_tolerance(mocker, tolerance, expected):
+    """A release listed a year later than the filename still matches within tolerance."""
+    mocker.patch(
+        "mnamer.providers.tmdb_search_movies",
+        return_value={"results": [TMDB_MOVIE], "total_pages": 1, "total_results": 1},
+    )
+    provider = Tmdb("key", year_tolerance=tolerance)
+    query = MetadataMovie(name="Example Movie", year=2019)  # TMDB_MOVIE is 2020
+
+    try:
+        results = list(provider.search(query))
+    except MnamerNotFoundException:
+        results = []
+    assert [result.id_tmdb for result in results] == expected
+
+
 def test_tmdb_search__missing_query():
     with pytest.raises(MnamerNotFoundException):
         next(Tmdb("key").search(MetadataMovie()))

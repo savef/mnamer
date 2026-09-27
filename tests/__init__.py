@@ -45,6 +45,7 @@ DEFAULT_SETTINGS = {
     "test": False,
     "verbose": False,
     "version": False,
+    "year_tolerance": 0,
 }
 
 

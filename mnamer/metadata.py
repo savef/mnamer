@@ -157,6 +157,14 @@ class MetadataMovie(Metadata):
         return f"{int(self.year) // 10 * 10}s" if self.year else None
 
     @override
+    def update(self, metadata: Metadata) -> None:
+        """Keeps a year parsed from the filename over the provider's own."""
+        year = self.year
+        super().update(metadata)
+        if year is not None:
+            super().__setattr__("year", year)
+
+    @override
     def matches_exactly(self, other: Metadata) -> bool:
         if not isinstance(other, MetadataMovie) or not str_key(self.name):
             return False

@@ -71,6 +71,7 @@ PARAMETERS:
   --no-overwrite: prevent relocation if it would overwrite a file
   --no-rename: relocate files without renaming them
   --no-style: print to stdout without using colour or unicode chars
+  --year-tolerance=<NUMBER>: years a result may differ by and still match
   --movie-api={*tmdb,omdb}: set movie api provider
   --movie-directory: set movie relocation directory
   --movie-format: set movie renaming format specification
